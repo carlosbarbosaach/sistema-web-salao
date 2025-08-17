@@ -135,7 +135,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                         <option value="">—</option>
                         <option value="Novo">Novo</option>
                         <option value="Popular">Popular</option>
-                        <option value="Promocão">Promoção</option>
+                        <option value="Promoção">Promoção</option>
                     </select>
                     {/* seta */}
                     <svg

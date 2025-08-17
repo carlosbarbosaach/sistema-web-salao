@@ -11,7 +11,7 @@ import PublicLayout from "./layouts/PublicLayout";
 import Login from "./pages/Login";
 import Agendamento from "./pages/Agendamento";
 import Analise from "./pages/Analise";
-import Servicos from "./pages/Serviços";
+import Servicos from "./pages/Servicos";
 
 // Páginas (cliente)
 import ClienteCalendario from "./pages/client/ClienteCalendario";

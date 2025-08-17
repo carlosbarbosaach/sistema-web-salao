@@ -1,9 +1,9 @@
-// types/appointment.ts
+// src/types/appointment.ts
 export type Appointment = {
-  id: number;
-  date: Date;
-  time: string;      // "HH:mm"
-  client: string;    // nome da cliente
-  phone: string;     // telefone da cliente
-  title?: string;    // (opcional) serviço, ex.: "Priscila Alisamentos"
+  id: string;           // <- string para bater com Firestore
+  title: string;
+  client: string;
+  phone: string;
+  time: string;         // "HH:mm"
+  date: Date;           // sempre Date dentro do app
 };

@@ -26,7 +26,19 @@ export function getMonthMatrix(currentMonth: Date) {
   }
   return dates;
 }
-export const WEEK_DAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+export const WEEK_DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 export function sameDay(a: Date, b: Date) {
-  return a.toDateString() === b.toDateString();
+  return a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
+}
+
+export function asLocalDate(d: any): Date {
+  if (d?.toDate) return d.toDate(); // Timestamp
+  if (d instanceof Date) return d;
+  if (typeof d === "string") {
+    const [y, m, day] = d.split("-").map(Number);
+    return new Date(y, (m || 1) - 1, day || 1);
+  }
+  return new Date(d);
 }

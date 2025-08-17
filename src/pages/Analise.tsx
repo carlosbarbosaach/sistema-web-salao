@@ -1,4 +1,4 @@
-// pages/Analise.tsx
+// src/pages/Analise.tsx
 import React from "react";
 import type { Appointment } from "../types/appointment";
 import type { Service } from "../types/service";
@@ -8,36 +8,18 @@ import {
 } from "../components/analysis";
 import PrivateLayout from "../layouts/PrivateLayout";
 
-/* Mocks */
-const SERVICES_MOCK: Service[] = [
-  { id: 1, name: "Corte Feminino", description: "", price: 120, durationMin: 50, badge: "Popular" },
-  { id: 2, name: "Corte Masculino", description: "", price: 70, durationMin: 35 },
-  { id: 3, name: "Escova Modeladora", description: "", price: 90, durationMin: 45 },
-  { id: 4, name: "Coloração", description: "", price: 260, durationMin: 120, badge: "Novo" },
-  { id: 5, name: "Progressiva", description: "", price: 480, durationMin: 150, badge: "Promoção" },
-];
+// 🔗 Firestore
+import { db } from "../lib/firebase";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
-const APPTS_MOCK: Appointment[] = [
-  { id: 1, title: "Corte Feminino", client: "Ana Paula", phone: "(48) 99811-7717", time: "09:00", date: new Date(2025, 7, 10) },
-  { id: 2, title: "Coloração", client: "Carla Souza", phone: "(48) 99922-3344", time: "11:00", date: new Date(2025, 7, 11) },
-  { id: 3, title: "Corte Masculino", client: "Eduardo Lima", phone: "(48) 98877-1100", time: "14:00", date: new Date(2025, 7, 11) },
-  { id: 4, title: "Progressiva", client: "Priscila Santos", phone: "(48) 99777-5522", time: "16:00", date: new Date(2025, 7, 12) },
-  { id: 5, title: "Escova Modeladora", client: "Bianca Alves", phone: "(48) 98123-4567", time: "10:00", date: new Date(2025, 7, 13) },
-  { id: 6, title: "Corte Feminino", client: "Maria Silva", phone: "(48) 98888-7777", time: "13:30", date: new Date(2025, 7, 14) },
-  { id: 7, title: "Coloração", client: "Julia Pereira", phone: "(48) 99111-2222", time: "15:00", date: new Date(2025, 7, 14) },
-  { id: 8, title: "Corte Masculino", client: "Carlos Eduardo", phone: "(48) 99876-5432", time: "09:30", date: new Date(2025, 7, 15) },
-  { id: 9, title: "Progressiva", client: "Lara Nogueira", phone: "(48) 99700-1010", time: "12:00", date: new Date(2025, 7, 15) },
-  { id: 10, title: "Corte Feminino", client: "Fernanda Costa", phone: "(48) 98222-3333", time: "17:00", date: new Date(2025, 7, 16) },
-];
-
-/* Helpers */
+/* ===================== Helpers ===================== */
 function formatBRL(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
+  return a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
 }
 function startOfDay(d: Date) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
@@ -48,11 +30,17 @@ function rangeDays(from: Date, to: Date) {
   while (cur <= end) { out.push(cur); cur = addDays(cur, 1); }
   return out;
 }
-function priceFor(title: string) {
-  return SERVICES_MOCK.find(s => s.name === title)?.price ?? 0;
+// Timestamp | string | Date -> Date (LOCAL)
+function toLocalDate(d: any): Date {
+  if (d?.toDate) return d.toDate();
+  if (typeof d === "string") {
+    const [y, m, day] = d.split("-").map(Number);
+    if (y && m) return new Date(y, (m || 1) - 1, day || 1);
+  }
+  return new Date(d);
 }
 
-/* Página */
+/* ===================== Períodos ===================== */
 type PeriodKey = "today" | "7d" | "month" | "30d";
 function getRange(period: PeriodKey) {
   const now = new Date();
@@ -72,34 +60,99 @@ function periodLabel(period: PeriodKey) {
 }
 
 export default function Analise({ title = "Análise" }: { title?: string }) {
+  /* ===================== State: Firestore ===================== */
+  const [services, setServices] = React.useState<Service[]>([]);
+  const [appointments, setAppointments] = React.useState<Appointment[]>([]);
+
+  // Services
+  React.useEffect(() => {
+    const q = query(collection(db, "services"), orderBy("name", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const rows: Service[] = snap.docs.map((d) => {
+        const s: any = d.data();
+        return {
+          id: d.id,
+          name: s.name,
+          description: s.description ?? "",
+          price: s.price ?? 0,
+          durationMin: s.durationMin ?? 0,
+          badge: s.badge,
+        } as Service;
+      });
+      setServices(rows);
+    });
+    return () => unsub();
+  }, []);
+
+  // Appointments
+  React.useEffect(() => {
+    const q = query(collection(db, "appointments"), orderBy("date", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const rows: Appointment[] = snap.docs.map((d) => {
+        const a: any = d.data();
+        return {
+          id: d.id,
+          title: a.title,
+          client: a.client,
+          phone: a.phone,
+          time: a.time,
+          date: toLocalDate(a.date),
+        } as Appointment;
+      });
+      setAppointments(rows);
+    });
+    return () => unsub();
+  }, []);
+
+  const serviceCount = services.length;
+  const apptTotalAll = appointments.length;
+
+  /* ===================== Período selecionado ===================== */
   const [period, setPeriod] = React.useState<PeriodKey>("month");
   const { start, end } = getRange(period);
 
+  // Filtra agendamentos pelo período
   const appts = React.useMemo(
-    () => APPTS_MOCK.filter(a => a.date >= start && a.date <= end),
-    [period, start, end]
+    () => appointments.filter(a => a.date >= start && a.date <= end),
+    [appointments, start, end]
   );
 
+  // preço por serviço usando services do Firestore
+  const priceMap = React.useMemo(() => {
+    const m = new Map<string, number>();
+    services.forEach(s => m.set(s.name, s.price || 0));
+    return m;
+  }, [services]);
+  const priceFor = React.useCallback((title: string) => priceMap.get(title) ?? 0, [priceMap]);
+
+  /* ===================== Métricas ===================== */
   const total = appts.length;
   const revenue = appts.reduce((acc, a) => acc + priceFor(a.title), 0);
   const ticket = total ? revenue / total : 0;
   const uniqueClients = new Set(appts.map(a => a.client)).size;
 
-  const days = rangeDays(start, end);
-  const series = days.map(d => appts.filter(a => sameDay(a.date, d)).length);
+  // Série diária
+  const days = React.useMemo(() => rangeDays(start, end), [start, end]);
+  const series = React.useMemo(
+    () => days.map(d => appts.filter(a => sameDay(a.date, d)).length),
+    [days, appts]
+  );
 
-  const topMap = new Map<string, { qty: number; revenue: number }>();
-  appts.forEach(a => {
-    const p = priceFor(a.title);
-    const cur = topMap.get(a.title) ?? { qty: 0, revenue: 0 };
-    topMap.set(a.title, { qty: cur.qty + 1, revenue: cur.revenue + p });
-  });
-  const topRows = [...topMap.entries()]
-    .map(([name, v]) => ({ name, ...v }))
-    .sort((a, b) => b.qty - a.qty)
-    .slice(0, 5);
+  // Top serviços
+  const topRows = React.useMemo(() => {
+    const topMap = new Map<string, { qty: number; revenue: number }>();
+    appts.forEach(a => {
+      const p = priceFor(a.title);
+      const cur = topMap.get(a.title) ?? { qty: 0, revenue: 0 };
+      topMap.set(a.title, { qty: cur.qty + 1, revenue: cur.revenue + p });
+    });
+    return [...topMap.entries()]
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 5);
+  }, [appts, priceFor]);
 
-  // ===== Paginação dos "Últimos agendamentos" =====
+  /* ===================== Últimos agendamentos (pagina) ===================== */
   const PAGE_SIZE = 5;
   const sortedAppts = React.useMemo(
     () => [...appts].sort((a, b) => b.date.getTime() - a.date.getTime()),
@@ -107,15 +160,13 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
   );
   const [page, setPage] = React.useState(1);
   const totalPages = Math.max(1, Math.ceil(sortedAppts.length / PAGE_SIZE));
-  React.useEffect(() => {
-    // se trocar o período e a página ficar fora do range, volta pra 1
-    setPage(1);
-  }, [period]);
+  React.useEffect(() => setPage(1), [period]);
 
   const startIdx = (page - 1) * PAGE_SIZE;
   const endIdx = Math.min(startIdx + PAGE_SIZE, sortedAppts.length);
   const pageItems = sortedAppts.slice(startIdx, endIdx);
 
+  /* ===================== Export CSV ===================== */
   function exportCsv() {
     const header = ["data", "hora", "cliente", "servico", "preco"];
     const lines = appts.map(a => [
@@ -123,7 +174,7 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
       a.time,
       a.client.replace(/,/g, " "),
       a.title.replace(/,/g, " "),
-      priceFor(a.title)
+      String(priceFor(a.title)),
     ]);
     const csv = [header, ...lines].map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -137,9 +188,11 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
     URL.revokeObjectURL(url);
   }
 
+  /* ===================== UI ===================== */
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pt-[100px] pb-8">
       <PrivateLayout />
+
       {/* Header + ações */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -175,8 +228,10 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
       </div>
 
       {/* KPIs */}
-      <section className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Kpi label="Agendamentos" value={String(total)} />
+      <section className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <Kpi label="Serviços cadastrados" value={String(serviceCount)} />
+        <Kpi label="Agendamentos cadastrados" value={String(apptTotalAll)} />
+        <Kpi label="Agendamentos (período)" value={String(total)} />
         <Kpi label="Receita estimada" value={formatBRL(revenue)} />
         <Kpi label="Ticket médio" value={formatBRL(ticket)} />
         <Kpi label="Clientes únicos" value={String(uniqueClients)} />
@@ -187,7 +242,11 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
         <Card>
           <CardHeader
             title="Agendamentos por dia"
-            right={`${days[0].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — ${days[days.length - 1].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}`}
+            right={
+              days.length
+                ? `${days[0].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — ${days[days.length - 1].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}`
+                : periodLabel(period)
+            }
           />
           <CardBody>
             <SubBox>

@@ -1,78 +1,67 @@
+// src/components/appointments/PublicBusyList.tsx
 import React from "react";
 import type { Appointment } from "../../types/appointment";
+import { getSlotsForDate, isSameDay } from "../../utils/schedule";
 
-/* Helpers */
-function parseTimeToMinutes(t: string) {
-    const [h, m] = t.split(":").map(Number);
-    return (h || 0) * 60 + (m || 0);
-}
-function formatPtBR(d?: Date | null) {
-    if (!d) return "";
-    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
-}
+type Props = {
+  title?: string;
+  date: Date;
+  appointments: Appointment[];
+  emptyText?: string;
+};
 
-/** Lista pública: só horários ocupados (sem dados pessoais) */
 export default function PublicBusyList({
-    appointments,
-    title = "Agenda do dia",
-    date = null,
-    emptyText = "Nenhum horário ocupado neste dia.",
-}: {
-    appointments: Appointment[];
-    title?: string;
-    date?: Date | null;
-    emptyText?: string;
-}) {
-    const items = React.useMemo(
-        () => [...appointments].sort((a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time)),
-        [appointments]
-    );
-    const count = items.length;
+  title = "Agenda pública",
+  date,
+  appointments,
+  emptyText = "Sem horários publicados neste dia.",
+}: Props) {
+  const slots = getSlotsForDate(date);
 
+  const busyTimes = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const a of appointments) {
+      if (isSameDay(a.date, date)) set.add(a.time);
+    }
+    return set;
+  }, [appointments, date]);
+
+  if (slots.length === 0) {
     return (
-        <aside className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-            {/* header */}
-            <header className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-3xl">
-                <h3 className="text-sm font-medium text-slate-700">{title}</h3>
-                <span className="text-xs text-slate-500">{formatPtBR(date)}</span>
-            </header>
-
-            {/* corpo */}
-            <div className="p-4">
-                <div className="rounded-2xl border border-slate-200 overflow-hidden">
-                    {/* subheader */}
-                    <div className="flex items-center justify-between px-4 py-3 bg-slate-50">
-                        <span className="text-sm font-medium text-slate-700">Horários ocupados</span>
-                        <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-100 px-2 text-xs font-semibold text-slate-600">
-                            {count}
-                        </span>
-                    </div>
-
-                    {/* lista ou empty */}
-                    {count > 0 ? (
-                        <ul className="divide-y divide-slate-200">
-                            {items.map((a) => (
-                                <li key={a.id} className="px-4 py-3">
-                                    <div className="flex items-center justify-between">
-                                        {/* horário */}
-                                        <span className="inline-flex items-center gap-2 text-sm font-medium text-slate-800 tabular-nums">
-                                            {/* bolinha de status */}
-                                            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-                                            {a.time}
-                                        </span>
-                                        {/* rótulo genérico */}
-                                        <span className="text-xs text-slate-600">Ocupado</span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="m-4 rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-                            {emptyText}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </aside>
+      <aside className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-200 text-sm font-medium text-slate-700">
+          {title}
+        </div>
+        <div className="m-4 rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+          {emptyText}
+        </div>
+      </aside>
     );
+  }
+
+  return (
+    <aside className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-200 text-sm font-medium text-slate-700">
+        {title}
+      </div>
+      <ul className="divide-y divide-slate-200">
+        {slots.map((t) => {
+          const busy = busyTimes.has(t);
+          return (
+            <li key={t} className="px-4 py-3 flex items-center justify-between">
+              <span className="text-sm text-slate-800">{t}</span>
+              <span
+                className={
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium " +
+                  (busy ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")
+                }
+              >
+                {busy ? "Ocupado" : "Disponível"}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </aside>
+  );
 }

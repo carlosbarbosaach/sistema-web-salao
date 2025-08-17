@@ -1,26 +1,23 @@
 import React from "react";
 import { cn } from "../../utils/cn";
-import { sameDay } from "../../utils/date";
-import type { Appointment } from "../../types/appointment";
 
 type Props = {
   date: Date;
+  currentMonth: Date;
   selected: Date | null;
   onSelect: (d: Date) => void;
-  appointments: Appointment[];
-  currentMonth: Date;
+  hasBusy?: boolean; // se true, mostra o pontinho SEMPRE
 };
 
 export default function DayCell({
   date,
+  currentMonth,
   selected,
   onSelect,
-  appointments,
-  currentMonth,
+  hasBusy = false,
 }: Props) {
-  const isSelected = !!selected && sameDay(date, selected);
+  const isSelected = !!selected && date.toDateString() === selected.toDateString();
   const isOtherMonth = date.getMonth() !== currentMonth.getMonth();
-  const hasAppt = appointments.some((a) => sameDay(a.date, date));
 
   return (
     <button
@@ -32,16 +29,18 @@ export default function DayCell({
         isSelected ? "bg-indigo-600 rounded-2xl shadow-sm" : "rounded-full hover:bg-slate-100"
       )}
       aria-pressed={isSelected}
+      aria-label={date.toDateString()}
     >
       <span className={cn("font-medium", isSelected && "text-white")}>
         {date.getDate()}
       </span>
 
-      {hasAppt && (
+      {/* Pontinho de “tem agendamento”: SEMPRE visível quando hasBusy=true */}
+      {hasBusy && (
         <span
           className={cn(
             "absolute left-1/2 -translate-x-1/2 bottom-1 h-1.5 w-1.5 rounded-full",
-            isSelected ? "bg-white" : "bg-indigo-600"
+            isSelected ? "bg-emerald-300" : "bg-emerald-600"
           )}
         />
       )}
