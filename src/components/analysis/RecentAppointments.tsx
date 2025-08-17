@@ -1,4 +1,3 @@
-import React from "react";
 import type { Appointment } from "../../types/appointment";
 
 export default function RecentAppointments({ items }: { items: Appointment[] }) {

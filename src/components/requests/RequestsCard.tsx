@@ -1,5 +1,3 @@
-import React from "react";
-
 type RequestItem = {
   id: string | number;
   cliente: string;

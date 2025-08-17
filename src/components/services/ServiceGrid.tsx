@@ -1,5 +1,4 @@
 // src/components/services/ServiceGrid.tsx
-import React from "react";
 import type { Service } from "../../types/service";
 import ServiceCard from "./ServiceCard";
 

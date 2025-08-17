@@ -1,5 +1,4 @@
 // src/components/services/ServiceCard.tsx
-import React from "react";
 import type { Service } from "../../types/service";
 import { formatBRL } from "../../utils/format";
 import Badge from "../common/Badge";

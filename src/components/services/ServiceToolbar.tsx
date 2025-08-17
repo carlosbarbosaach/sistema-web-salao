@@ -1,5 +1,4 @@
 // src/components/services/ServiceToolbar.tsx
-import React from "react";
 import { PlusIcon } from "../icons";
 
 type Props = {

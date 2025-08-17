@@ -1,4 +1,3 @@
-import React from "react";
 
 function formatBRL(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

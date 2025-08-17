@@ -1,4 +1,3 @@
-import React from "react";
 import Modal from "../common/Modal";
 import AppointmentForm from "./AppointmentForm";
 import type { Appointment } from "../../types/appointment";

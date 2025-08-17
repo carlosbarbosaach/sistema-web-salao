@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function MiniLine({ points }: { points: number[] }) {
   const w = 280, h = 64, pad = 6;
   const min = Math.min(...points, 0);
