@@ -5,5 +5,5 @@ export type Service = {
   description: string;
   price: number;       // BRL
   durationMin: number;
-  badge?: "Novo" | "Popular" | "Promo";
+  badge?: "Novo" | "Popular" | "Promoção";
 };

@@ -19,7 +19,7 @@ function parseBRLToNumber(text: string) {
 }
 
 export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
-    // placeholders only (sem defaults preenchidos)
+    // placeholders only
     const [name, setName] = React.useState(initial?.name ?? "");
     const [description, setDescription] = React.useState(initial?.description ?? "");
     const [priceText, setPriceText] = React.useState(
@@ -30,6 +30,13 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
     );
     const [badge, setBadge] = React.useState<FormValues["badge"]>(initial?.badge);
     const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+    // 🎯 Estilo base padronizado (cinza suave)
+    const FIELD_BASE =
+        "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm " +
+        "text-slate-800 placeholder:text-slate-400 outline-none transition-colors " +
+        "focus:ring-0 focus:border-slate-400 caret-slate-700";
+    const FIELD_ERROR = " border-rose-300 focus:border-rose-400";
 
     function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
         const digits = e.target.value.replace(/\D/g, "");
@@ -55,13 +62,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
         setErrors(eMap);
         if (Object.keys(eMap).length > 0) return;
 
-        const payload: FormValues = {
-            name,
-            description,
-            price,
-            durationMin,
-            badge,
-        };
+        const payload: FormValues = { name, description, price, durationMin, badge };
         onSubmit(payload);
     }
 
@@ -74,10 +75,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                     autoFocus
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.name
-                            ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                            : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                        }`}
+                    className={FIELD_BASE + (errors.name ? FIELD_ERROR : "")}
                     placeholder="Ex.: Corte Feminino"
                 />
                 {errors.name && <p className="mt-1 text-xs text-rose-600">{errors.name}</p>}
@@ -90,10 +88,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.description
-                            ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                            : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                        }`}
+                    className={FIELD_BASE + (errors.description ? FIELD_ERROR : "")}
                     placeholder="Detalhe o que está incluso no serviço…"
                 />
                 {errors.description && <p className="mt-1 text-xs text-rose-600">{errors.description}</p>}
@@ -108,14 +103,12 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                         inputMode="numeric"
                         value={priceText}
                         onChange={handlePriceChange}
-                        className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.price
-                                ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                                : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                            }`}
+                        className={FIELD_BASE + (errors.price ? FIELD_ERROR : "")}
                         placeholder="0,00"
                     />
                     {errors.price && <p className="mt-1 text-xs text-rose-600">{errors.price}</p>}
                 </div>
+
                 <div>
                     <label className="block text-sm font-medium text-slate-700">Duração (min)</label>
                     <input
@@ -123,10 +116,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                         inputMode="numeric"
                         value={durationText}
                         onChange={(e) => setDurationText(e.target.value.replace(/\D/g, ""))}
-                        className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.durationMin
-                                ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                                : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                            }`}
+                        className={FIELD_BASE + (errors.durationMin ? FIELD_ERROR : "")}
                         placeholder="60"
                     />
                     {errors.durationMin && <p className="mt-1 text-xs text-rose-600">{errors.durationMin}</p>}
@@ -140,12 +130,12 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                     <select
                         value={badge ?? ""}
                         onChange={(e) => setBadge((e.target.value || undefined) as FormValues["badge"])}
-                        className="w-full appearance-none rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+                        className={"appearance-none pr-9 " + FIELD_BASE}
                     >
                         <option value="">—</option>
                         <option value="Novo">Novo</option>
                         <option value="Popular">Popular</option>
-                        <option value="Promo">Promo</option>
+                        <option value="Promocão">Promoção</option>
                     </select>
                     {/* seta */}
                     <svg
@@ -171,7 +161,7 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                 </button>
                 <button
                     type="submit"
-                    className="inline-flex items-center rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="inline-flex items-center rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-900"
                 >
                     Salvar
                 </button>

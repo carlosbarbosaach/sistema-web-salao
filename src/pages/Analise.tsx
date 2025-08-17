@@ -14,7 +14,7 @@ const SERVICES_MOCK: Service[] = [
   { id: 2, name: "Corte Masculino", description: "", price: 70, durationMin: 35 },
   { id: 3, name: "Escova Modeladora", description: "", price: 90, durationMin: 45 },
   { id: 4, name: "Coloração", description: "", price: 260, durationMin: 120, badge: "Novo" },
-  { id: 5, name: "Progressiva", description: "", price: 480, durationMin: 150, badge: "Promo" },
+  { id: 5, name: "Progressiva", description: "", price: 480, durationMin: 150, badge: "Promoção" },
 ];
 
 const APPTS_MOCK: Appointment[] = [

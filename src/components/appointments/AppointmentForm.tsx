@@ -29,21 +29,15 @@ function onlyDigits(s: string) {
 
 /** Máscara BR: (DD) 9XXXX-XXXX ou (DD) XXXX-XXXX */
 function formatPhoneBR(input: string) {
-    const d = onlyDigits(input).slice(0, 11); // limita a 11 dígitos
+    const d = onlyDigits(input).slice(0, 11);
     if (!d) return "";
-
     const ddd = d.slice(0, 2);
     const rest = d.slice(2);
-
-    // Montagem progressiva enquanto digita
     if (d.length <= 2) return `(${ddd}`;
-    if (d.length <= 6) return `(${ddd}) ${rest}`; // até 4 após DDD (sem hífen ainda)
-
-    // Fixo (10 dígitos) => 4+4 | Celular (11) => 5+4
+    if (d.length <= 6) return `(${ddd}) ${rest}`;
     const isCell = d.length > 10;
     const left = rest.slice(0, isCell ? 5 : 4);
     const right = rest.slice(isCell ? 5 : 4);
-
     return right ? `(${ddd}) ${left}-${right}` : `(${ddd}) ${left}`;
 }
 
@@ -65,6 +59,13 @@ export default function AppointmentForm({
 
     const [errors, setErrors] = React.useState<Record<string, string>>({});
 
+    // 🌫️ Base única (cinza suave, sem glow colorido)
+    const FIELD_BASE =
+        "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm " +
+        "text-slate-800 placeholder:text-slate-400 outline-none transition-colors " +
+        "focus:ring-0 focus:border-slate-400 caret-slate-700";
+    const FIELD_ERROR = " border-rose-300 focus:border-rose-400";
+
     function validate() {
         const e: Record<string, string> = {};
         if (!client.trim()) e.client = "Informe o nome do cliente.";
@@ -85,7 +86,7 @@ export default function AppointmentForm({
         onSubmit({
             title,
             client,
-            phone, // já vem mascarado para exibição; onlyDigits() é usado na validação
+            phone, // exibido com máscara; para persistir puro, use onlyDigits(phone)
             time,
             date: fromDateInputValue(dateStr),
         });
@@ -110,10 +111,7 @@ export default function AppointmentForm({
                     value={client}
                     onChange={(e) => setClient(e.target.value)}
                     placeholder="Nome completo"
-                    className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.client
-                            ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                            : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                        }`}
+                    className={FIELD_BASE + (errors.client ? FIELD_ERROR : "")}
                 />
                 {errors.client && <p className="mt-1 text-xs text-rose-600">{errors.client}</p>}
             </div>
@@ -128,28 +126,22 @@ export default function AppointmentForm({
                     value={phone}
                     onChange={handlePhoneChange}
                     onPaste={handlePhonePaste}
-                    placeholder="(48) 99811-7717"
-                    maxLength={16} // "(99) 99999-9999" tem 16 chars
-                    className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.phone
-                            ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                            : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                        }`}
+                    placeholder="(xx) xxxx-xxxx"
+                    maxLength={16}
+                    className={FIELD_BASE + (errors.phone ? FIELD_ERROR : "")}
                     pattern="\(\d{2}\)\s?\d{4,5}-?\d{4}"
                 />
                 {errors.phone && <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>}
             </div>
 
-            {/* Serviço (select com serviços cadastrados) */}
+            {/* Serviço (select) */}
             <div>
                 <label className="block text-sm font-medium text-slate-700">Serviço</label>
                 <div className="relative mt-1">
                     <select
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className={`w-full appearance-none rounded-lg border px-3 py-2 pr-10 text-sm bg-white focus:outline-none ${errors.title
-                                ? "border-rose-300 focus:ring-2 focus:ring-rose-200"
-                                : "border-slate-300 focus:ring-2 focus:ring-emerald-300"
-                            }`}
+                        className={"appearance-none pr-9 " + FIELD_BASE + (errors.title ? FIELD_ERROR : "")}
                     >
                         <option value="" disabled>
                             Selecione um serviço…
@@ -188,10 +180,7 @@ export default function AppointmentForm({
                         type="date"
                         value={dateStr}
                         onChange={(e) => setDateStr(e.target.value)}
-                        className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.date
-                                ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                                : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                            }`}
+                        className={FIELD_BASE + (errors.date ? FIELD_ERROR : "")}
                     />
                     {errors.date && <p className="mt-1 text-xs text-rose-600">{errors.date}</p>}
                 </div>
@@ -201,10 +190,7 @@ export default function AppointmentForm({
                         type="time"
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
-                        className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${errors.time
-                                ? "border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-200"
-                                : "border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                            }`}
+                        className={FIELD_BASE + (errors.time ? FIELD_ERROR : "")}
                     />
                     {errors.time && <p className="mt-1 text-xs text-rose-600">{errors.time}</p>}
                 </div>
@@ -221,7 +207,7 @@ export default function AppointmentForm({
                 </button>
                 <button
                     type="submit"
-                    className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                    className="inline-flex items-center rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-900"
                 >
                     Salvar
                 </button>
