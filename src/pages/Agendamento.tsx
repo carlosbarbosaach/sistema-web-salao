@@ -19,7 +19,6 @@ import ConfirmModal from "../components/common/ConfirmModal";
 
 import type { Appointment } from "../types/appointment";
 import type { Service } from "../types/service";
-import PrivateLayout from "../layouts/PrivateLayout";
 import { busyTimesFor } from "../utils/schedule";
 
 /* ===================== Helpers ===================== */
@@ -511,7 +510,6 @@ export default function Agendamento() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pt-[100px] pb-8">
-      <PrivateLayout />
 
       {/* Header + CTA Novo agendamento */}
       <div className="mb-4 flex items-center justify-between">

@@ -1,4 +1,3 @@
-// src/pages/Analise.tsx
 import React from "react";
 import type { Appointment } from "../types/appointment";
 import type { Service } from "../types/service";
@@ -6,7 +5,6 @@ import {
   Card, CardHeader, CardBody, SubBox,
   Kpi, MiniLine, TopServicesTable, RecentAppointments
 } from "../components/analysis";
-import PrivateLayout from "../layouts/PrivateLayout";
 
 // 🔗 Firestore
 import { db } from "../lib/firebase";
@@ -191,7 +189,6 @@ export default function Analise({ title = "Análise" }: { title?: string }) {
   /* ===================== UI ===================== */
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pt-[100px] pb-8">
-      <PrivateLayout />
 
       {/* Header + ações */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

@@ -4,9 +4,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 import {
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
   signOut,
 } from "firebase/auth";
 
@@ -74,38 +71,6 @@ export default function Login() {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       await ensureAdminOrSignOut(cred.user.email);
-    } catch (err) {
-      const msg =
-        (err as Error)?.message?.includes("administrador")
-          ? "Sem permissão. Esta conta não é de administrador."
-          : mapAuthError(err);
-      setError(msg);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  // Mantive a função Google; se não for usar, pode remover os imports e esta função.
-  async function handleGoogle() {
-    setError(null);
-    setSubmitting(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      try {
-        const cred = await signInWithPopup(auth, provider);
-        await ensureAdminOrSignOut(cred.user.email);
-      } catch (popupErr) {
-        const code = (popupErr as FirebaseError)?.code || "";
-        if (
-          code === "auth/popup-blocked" ||
-          code === "auth/popup-closed-by-user" ||
-          code === "auth/cancelled-popup-request"
-        ) {
-          await signInWithRedirect(auth, provider);
-          return;
-        }
-        throw popupErr;
-      }
     } catch (err) {
       const msg =
         (err as Error)?.message?.includes("administrador")
