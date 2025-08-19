@@ -28,24 +28,24 @@ export default function App() {
           {/* ROTAS PÚBLICAS DO CLIENTE (com header público fixo) */}
           <Route element={<PublicLayout />}>
             <Route index element={<Navigate to="/cliente/calendario" replace />} />
-            <Route path="/cliente/calendario" element={<ClienteCalendario />} />
-            <Route path="/cliente/servicos" element={<ClienteServicos />} />
-            <Route path="/cliente/agendamento" element={<ClienteAgendamento />} />
+            <Route path="cliente/calendario" element={<ClienteCalendario />} />
+            <Route path="cliente/servicos" element={<ClienteServicos />} />
+            <Route path="cliente/agendamento" element={<ClienteAgendamento />} />
           </Route>
 
           {/* ROTAS PRIVADAS (admin) — com Header fixo do admin */}
           <Route
             element={
-              <RequireAuth>
+              <RequireAuth /* requireAdmin opcional */>
                 <PrivateLayout />
               </RequireAuth>
             }
           >
-            {/* ao entrar na área privada, direciona para /agendamento */}
-            <Route index element={<Navigate to="/agendamento" replace />} />
-            <Route path="/agendamento" element={<Agendamento />} />
-            <Route path="/servicos" element={<Servicos />} />
-            <Route path="/analise" element={<Analise />} />
+            {/* IMPORTANTE: caminhos RELATIVOS aqui */}
+            <Route index element={<Navigate to="agendamento" replace />} />
+            <Route path="agendamento" element={<Agendamento />} />
+            <Route path="servicos" element={<Servicos />} />
+            <Route path="analise" element={<Analise />} />
           </Route>
 
           {/* Fallback: leva para o calendário público */}

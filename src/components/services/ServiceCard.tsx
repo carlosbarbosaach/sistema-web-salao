@@ -6,8 +6,8 @@ import { PencilIcon, TrashIcon } from "../icons";
 
 type Props = {
     service: Service;
-    onEdit: (id: number) => void;
-    onDelete: (id: number) => void;
+    onEdit: (id: string) => void;   // <-- string
+    onDelete: (id: string) => void; // <-- string
 };
 
 export default function ServiceCard({ service, onEdit, onDelete }: Props) {

@@ -6,9 +6,9 @@ import type { Appointment } from "../../types/appointment";
 
 /* mock simples */
 const APPTS: Appointment[] = [
-    { id: 1, title: "Corte Feminino", client: "Ana Paula", phone: "(48) 99811-7717", time: "09:00", date: new Date(2025, 7, 16) },
-    { id: 2, title: "Coloração", client: "Carla Souza", phone: "(48) 99922-3344", time: "11:00", date: new Date(2025, 7, 16) },
-    { id: 3, title: "Corte Masculino", client: "Eduardo Lima", phone: "(48) 98877-1100", time: "14:00", date: new Date(2025, 7, 17) },
+    { id: "1", title: "Corte Feminino", client: "Ana Paula", phone: "(48) 99811-7717", time: "09:00", date: new Date(2025, 7, 16) },
+    { id: "2", title: "Coloração", client: "Carla Souza", phone: "(48) 99922-3344", time: "11:00", date: new Date(2025, 7, 16) },
+    { id: "3", title: "Corte Masculino", client: "Eduardo Lima", phone: "(48) 98877-1100", time: "14:00", date: new Date(2025, 7, 17) },
 ];
 
 /* helpers: SEM timezone (local) */

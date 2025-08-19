@@ -9,7 +9,6 @@ import {
 import type { Service } from "../types/service";
 import ServiceForm from "../components/services/ServiceForm";
 import ConfirmModal from "../components/common/ConfirmModal";
-import PrivateLayout from "../layouts/PrivateLayout";
 
 type FormValues = Omit<Service, "id">;
 
@@ -89,7 +88,6 @@ export default function Servicos({ title = "Serviços" }: { title?: string }) {
 
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pt-[100px] pb-8">
-      <PrivateLayout />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-800">{title}</h1>
