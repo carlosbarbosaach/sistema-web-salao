@@ -11,12 +11,12 @@ import Login from "./pages/Login";
 import Agendamento from "./pages/Agendamento";
 import Analise from "./pages/Analise";
 import Servicos from "./pages/Servicos";
+import AdminTools from "./pages/tools/AdminTools"; // ⬅️ ADICIONADO
+
+// Páginas (cliente)
 import ClienteCalendario from "./pages/client/Calendario";
 import ClienteServicos from "./pages/client/ClienteServicos";
 import ClienteAgendamento from "./pages/client/ClienteAgendamento";
-
-// Páginas (cliente)
-
 
 export default function App() {
   return (
@@ -42,11 +42,12 @@ export default function App() {
               </RequireAuth>
             }
           >
-            {/* IMPORTANTE: caminhos RELATIVOS aqui */}
+            {/* caminhos relativos */}
             <Route index element={<Navigate to="agendamento" replace />} />
             <Route path="agendamento" element={<Agendamento />} />
             <Route path="servicos" element={<Servicos />} />
             <Route path="analise" element={<Analise />} />
+            <Route path="tools" element={<AdminTools />} /> {/* ⬅️ NOVA ROTA */}
           </Route>
 
           {/* Fallback: leva para o calendário público */}

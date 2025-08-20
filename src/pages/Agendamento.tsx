@@ -327,6 +327,7 @@ export default function Agendamento() {
         time: data.time,
         date: data.date instanceof Date ? data.date : Timestamp.fromDate(new Date(data.date)),
         createdAt: Timestamp.now(),
+        public: true, // 👈 novo
       });
       setOpenNew(false);
       setNotice({
@@ -376,6 +377,7 @@ export default function Agendamento() {
         time: data.time,
         date: data.date instanceof Date ? data.date : Timestamp.fromDate(new Date(data.date)),
         updatedAt: Timestamp.now(),
+        public: true, // 👈 novo
       });
       setEditing(null);
       setNotice({

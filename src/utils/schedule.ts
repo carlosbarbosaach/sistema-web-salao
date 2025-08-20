@@ -11,16 +11,11 @@ export const WEEK_SLOTS: Record<number, string[]> = {
   6: ["07:00", "08:00", "13:00", "14:00", "17:00"],   // Sábado
 };
 
-/** Horários fixos do dia (0=Dom..6=Sáb) */
 export function getSlotsForDate(date?: Date | null): string[] {
   if (!date) return [];
   return WEEK_SLOTS[date.getDay()] ?? [];
 }
 
-/** Alias para compatibilizar com os imports existentes */
-export const slotsForDate = getSlotsForDate;
-
-/** Comparação de dia ignorando hora/fuso */
 export function isSameDay(a: Date, b: Date) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -29,12 +24,8 @@ export function isSameDay(a: Date, b: Date) {
   );
 }
 
-/** Horários ocupados no dia (ordenados e sem repetição) */
 export function busyTimesFor(date: Date, appointments: Appointment[]): string[] {
-  const times = appointments
-    .filter((a) => isSameDay(a.date, date))
-    .map((a) => a.time)
-    .sort((a, b) => a.localeCompare(b));
-
-  return Array.from(new Set(times));
+  return appointments
+    .filter(a => isSameDay(a.date, date))
+    .map(a => a.time);
 }
