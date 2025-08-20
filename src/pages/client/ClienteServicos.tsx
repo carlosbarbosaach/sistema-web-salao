@@ -61,18 +61,6 @@ export default function ClienteServicos() {
                                 )}
                             </div>
                             <p className="mt-1 text-sm text-slate-600">{s.description}</p>
-                            <div className="mt-3 flex items-end justify-between">
-                                <div>
-                                    <div className="text-base font-semibold text-slate-900">{formatBRL(s.price)}</div>
-                                    <div className="text-xs text-slate-500">~ {s.durationMin} min</div>
-                                </div>
-                                <a
-                                    href="/cliente/agendamento"
-                                    className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
-                                >
-                                    Agendar
-                                </a>
-                            </div>
                         </article>
                     ))}
                 </div>

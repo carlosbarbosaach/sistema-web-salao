@@ -1,12 +1,10 @@
-// src/types/service.ts
 export type Service = {
-  id: string;                 // <- era number, mude para string
+  id: string;        
   name: string;
   description: string;
-  price: number;              // em BRL (centavos não, número normal)
+  price: number;              
   durationMin: number;
-  badge?: "Novo" | "Popular" | "Promo"; // use "Promo" (não "Promoção")
-  active?: boolean;
-  createdAt?: any;            // Firestore timestamp
+  badge?: "Novo" | "Popular" | "Promo"; 
+  createdAt?: any;           
   updatedAt?: any;
 };

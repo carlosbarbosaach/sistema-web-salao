@@ -15,7 +15,6 @@ export default function PublicHeader({ brand = "Priscila Alisamentos" }: { brand
   const nav: NavItem[] = [
     { to: "/cliente/calendario", label: "Calendário" },
     { to: "/cliente/servicos", label: "Serviços" },
-    { to: "/cliente/agendamento", label: "Agendar" },
   ];
 
   return (
