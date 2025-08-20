@@ -11,11 +11,12 @@ import Login from "./pages/Login";
 import Agendamento from "./pages/Agendamento";
 import Analise from "./pages/Analise";
 import Servicos from "./pages/Servicos";
-
-// Páginas (cliente)
-import ClienteCalendario from "./pages/client/ClienteCalendario";
+import ClienteCalendario from "./pages/client/Calendario";
 import ClienteServicos from "./pages/client/ClienteServicos";
 import ClienteAgendamento from "./pages/client/ClienteAgendamento";
+
+// Páginas (cliente)
+
 
 export default function App() {
   return (

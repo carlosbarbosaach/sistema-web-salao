@@ -1,4 +1,3 @@
-// src/components/appointments/AppointmentForm.tsx
 import React from "react";
 import type { Appointment } from "../../types/appointment";
 import type { Service } from "../../types/service";
@@ -14,6 +13,8 @@ type Props = {
   onCancel: () => void;
   /** horários já ocupados no dia selecionado (ex.: ["10:00","13:00"]) */
   busyTimes?: string[];
+  /** avisa o pai quando a data mudar (formato YYYY-MM-DD) */
+  onDateChange?: (isoDate: string) => void;
 };
 
 /* Helpers */
@@ -51,6 +52,7 @@ export default function AppointmentForm({
   onSubmit,
   onCancel,
   busyTimes = [],
+  onDateChange,
 }: Props) {
   const [title, setTitle] = React.useState(initial?.title ?? "");
   const [client, setClient] = React.useState(initial?.client ?? "");
@@ -69,6 +71,7 @@ export default function AppointmentForm({
 
   const currentDate = React.useMemo(() => fromDateInputValue(dateStr), [dateStr]);
   const slots = React.useMemo(() => getSlotsForDate(currentDate), [currentDate]);
+  const busySet = React.useMemo(() => new Set(busyTimes), [busyTimes]);
 
   function validate() {
     const e: Record<string, string> = {};
@@ -105,10 +108,12 @@ export default function AppointmentForm({
     setPhone(formatPhoneBR(pasted));
   }
 
-  // Ao mudar a data, se o horário atual não existir no novo dia, limpa
+  // Ao mudar a data: limpar time inválido e avisar o pai
   React.useEffect(() => {
     if (time && !slots.includes(time)) setTime("");
-  }, [dateStr]); // eslint-disable-line
+    onDateChange?.(dateStr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateStr]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -169,7 +174,7 @@ export default function AppointmentForm({
         {errors.title && <p className="mt-1 text-xs text-rose-600">{errors.title}</p>}
       </div>
 
-      {/* Data + Horário (fixos por dia da semana) */}
+      {/* Data + Horário (com indicação de ocupados) */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-slate-700">Data</label>
@@ -194,7 +199,7 @@ export default function AppointmentForm({
                 <option value="" disabled>Sem horários neste dia</option>
               )}
               {slots.map((t) => {
-                const isTaken = busyTimes.includes(t) && t !== initial?.time; // libera o horário atual em edição
+                const isTaken = busySet.has(t); // cliente não edita, então qualquer ocupado = desabilitado
                 return (
                   <option key={t} value={t} disabled={isTaken}>
                     {t}{isTaken ? " — (ocupado)" : ""}
