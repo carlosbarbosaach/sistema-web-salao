@@ -1,3 +1,4 @@
+// src/components/booking/BookingForm.tsx
 import React from "react";
 import {
     fetchServices,
@@ -29,7 +30,14 @@ export default function BookingForm({
 }: {
     date: Date;
     presetServiceId?: string;
-    onSuccess: () => void;
+    // retorna os dados da solicitação para quem chamou (Provider/Modal) exibir o toast
+    onSuccess?: (info: {
+        client: string;
+        phone: string;
+        service: string;
+        date: Date;
+        time: string;
+    }) => void;
     onCancel?: () => void;
     servicesCollection?: string;
     scheduleDocPath?: string;
@@ -43,15 +51,26 @@ export default function BookingForm({
 
     // dados
     const [services, setServices] = React.useState<Service[]>([]);
-    const [cfg, setCfg] = React.useState<{ openMinutes: number; closeMinutes: number; stepMinutes: number } | null>(null);
+    const [cfg, setCfg] = React.useState<{
+        openMinutes: number;
+        closeMinutes: number;
+        stepMinutes: number;
+    } | null>(null);
     const [busySet, setBusySet] = React.useState<Set<string>>(new Set());
 
     // ui
     const [submitting, setSubmitting] = React.useState(false);
-    const [errors, setErrors] = React.useState<{ client?: string; phone?: string; title?: string; date?: string; time?: string }>({});
+    const [errors, setErrors] = React.useState<{
+        client?: string;
+        phone?: string;
+        title?: string;
+        date?: string;
+        time?: string;
+    }>({});
 
     const dateObj = React.useMemo(() => fromLocalDateParam(dateStr), [dateStr]);
 
+    // carrega serviços + config de horários
     React.useEffect(() => {
         let mounted = true;
         (async () => {
@@ -68,6 +87,7 @@ export default function BookingForm({
         };
     }, [servicesCollection, scheduleDocPath]);
 
+    // ouve horários já ocupados para a data
     React.useEffect(() => {
         const unsub = watchAppointmentsByDate(dateObj, (rows) => {
             setBusySet(new Set(rows.map((r) => r.time).filter(Boolean)));
@@ -78,7 +98,9 @@ export default function BookingForm({
     const slots = React.useMemo(() => {
         if (!cfg) return [];
         const out: string[] = [];
-        for (let m = cfg.openMinutes; m <= cfg.closeMinutes; m += cfg.stepMinutes) out.push(toHHMM(m));
+        for (let m = cfg.openMinutes; m <= cfg.closeMinutes; m += cfg.stepMinutes) {
+            out.push(toHHMM(m));
+        }
         return out;
     }, [cfg]);
 
@@ -112,7 +134,15 @@ export default function BookingForm({
                 phone,
             });
             setSubmitting(false);
-            onSuccess();
+
+            // dispara os dados para o Provider/Modal mostrar o toast
+            onSuccess?.({
+                client,
+                phone,
+                service: serviceName,
+                date: dateObj,
+                time,
+            });
         } catch (err) {
             console.error(err);
             setSubmitting(false);
@@ -164,7 +194,9 @@ export default function BookingForm({
                             (errors.title ? "border-rose-400" : "border-slate-300")
                         }
                     >
-                        <option value="" disabled>Selecione um serviço...</option>
+                        <option value="" disabled>
+                            Selecione um serviço...
+                        </option>
                         {services.length ? (
                             services.map((s) => (
                                 <option key={s.id} value={s.id}>
@@ -172,11 +204,18 @@ export default function BookingForm({
                                 </option>
                             ))
                         ) : (
-                            <option value="" disabled>Nenhum serviço cadastrado</option>
+                            <option value="" disabled>
+                                Nenhum serviço cadastrado
+                            </option>
                         )}
                     </select>
-                    <svg width="16" height="16" viewBox="0 0 24 24"
-                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                        aria-hidden="true"
+                    >
                         <path fill="currentColor" d="M7 10l5 5 5-5z" />
                     </svg>
                 </div>
@@ -210,19 +249,31 @@ export default function BookingForm({
                                 (errors.time ? "border-rose-400" : "border-slate-300")
                             }
                         >
-                            <option value="" disabled>Selecione...</option>
-                            {slots.length === 0 && <option value="" disabled>Sem horários neste dia</option>}
+                            <option value="" disabled>
+                                Selecione...
+                            </option>
+                            {slots.length === 0 && (
+                                <option value="" disabled>
+                                    Sem horários neste dia
+                                </option>
+                            )}
                             {slots.map((t) => {
                                 const isTaken = busySet.has(t);
                                 return (
                                     <option key={t} value={t} disabled={isTaken}>
-                                        {t}{isTaken ? " — (ocupado)" : ""}
+                                        {t}
+                                        {isTaken ? " — (ocupado)" : ""}
                                     </option>
                                 );
                             })}
                         </select>
-                        <svg width="16" height="16" viewBox="0 0 24 24"
-                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                            aria-hidden="true"
+                        >
                             <path fill="currentColor" d="M7 10l5 5 5-5z" />
                         </svg>
                     </div>

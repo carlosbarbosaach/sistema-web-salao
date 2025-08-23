@@ -73,7 +73,7 @@ export default function ClienteCalendario() {
     );
   }, [items, selected]);
 
-  // submit do modal (criar agendamento)
+  // submit do modal (agora cria SOLICITAÇÃO)
   async function handleCreate(data: {
     title: string;
     client: string;
@@ -81,14 +81,14 @@ export default function ClienteCalendario() {
     time: string;
     date: Date;
   }) {
-    await addDoc(collection(db, "appointments"), {
-      title: data.title,
-      client: data.client ?? "",
-      phone: data.phone ?? "",
-      time: data.time, // "HH:MM"
-      date: Timestamp.fromDate(startOfDay(data.date)),
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+    await addDoc(collection(db, "appointment_requests"), {
+      title: data.title,          // nome do serviço (texto)
+      client: data.client,
+      phone: data.phone,
+      time: data.time,            // "HH:MM"
+      date: Timestamp.fromDate(startOfDay(data.date)), // rules exigem timestamp
+      status: "pending",
+      createdAt: Timestamp.now(), // ok pelas rules
     });
     setOpenNew(false);
   }

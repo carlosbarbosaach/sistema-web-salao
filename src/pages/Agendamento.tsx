@@ -91,7 +91,7 @@ function NotificationModal({
   title,
   message,
   variant = "success",
-  durationMs = 5000, // 5s e fecha sozinho
+  durationMs = 5000,
   onClose,
 }: {
   open: boolean;
@@ -131,7 +131,6 @@ function NotificationModal({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-      {/* keyframes locais */}
       <style>
         {`
         @keyframes fillWidth {
@@ -168,7 +167,6 @@ function NotificationModal({
           </button>
         </div>
 
-        {/* Barra com preenchimento animado + listras */}
         <div className="px-4 pb-4">
           <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
             <div
@@ -197,15 +195,14 @@ function NotificationModal({
 }
 /* ==================================================== */
 
-/* Tipo local para solicitações do cliente */
+/* Tipo local para solicitações do cliente (appointment_requests) */
 type RequestDoc = {
   id: string;
   client: string;
   phone: string;
-  phoneDigits?: string;
-  service: string; // nome do serviço
-  date: Date;
   time: string;
+  title: string; // nome do serviço
+  date: Date;
   status?: "pending" | "approved" | "rejected";
   createdAt?: Timestamp;
 };
@@ -231,8 +228,8 @@ export default function Agendamento() {
 
   // Carrega agendamentos
   React.useEffect(() => {
-    const q = query(collection(db, "appointments"), orderBy("date", "asc"));
-    const unsub = onSnapshot(q, (snap) => {
+    const qAp = query(collection(db, "appointments"), orderBy("date", "asc"));
+    const unsub = onSnapshot(qAp, (snap) => {
       const rows: Appointment[] = snap.docs.map((d) => {
         const data: any = d.data();
         return {
@@ -251,8 +248,8 @@ export default function Agendamento() {
 
   // Carrega serviços
   React.useEffect(() => {
-    const q = query(collection(db, "services"), orderBy("name", "asc"));
-    const unsub = onSnapshot(q, (snap) => {
+    const qS = query(collection(db, "services"), orderBy("name", "asc"));
+    const unsub = onSnapshot(qS, (snap) => {
       const rows: Service[] = snap.docs.map((d) => {
         const data: any = d.data();
         return {
@@ -269,18 +266,17 @@ export default function Agendamento() {
     return () => unsub();
   }, []);
 
-  // Carrega solicitações pendentes
+  // Carrega solicitações (appointment_requests)
   React.useEffect(() => {
-    const q = query(collection(db, "requests"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
+    const qR = query(collection(db, "appointment_requests"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(qR, (snap) => {
       const rows: RequestDoc[] = snap.docs.map((d) => {
         const x: any = d.data();
         return {
           id: d.id,
           client: x.client,
           phone: x.phone,
-          phoneDigits: x.phoneDigits,
-          service: x.service,
+          title: x.title,
           date: x.date?.toDate ? x.date.toDate() : new Date(x.date),
           time: x.time,
           status: x.status ?? "pending",
@@ -291,6 +287,12 @@ export default function Agendamento() {
     });
     return () => unsub();
   }, []);
+
+  // Somente pendentes
+  const pendingRequests = React.useMemo(
+    () => requests.filter((r) => (r.status ?? "pending") === "pending"),
+    [requests]
+  );
 
   // Itens do dia
   const dayItems = React.useMemo(() => {
@@ -308,7 +310,7 @@ export default function Agendamento() {
     return appointments.some((a) => a.time === time && sameDay(a.date, date));
   }
 
-  // Criar novo agendamento (CTA)
+  // Criar novo agendamento (manual pelo admin)
   async function handleCreate(data: Omit<Appointment, "id">) {
     try {
       if (hasConflict(data.date as Date, data.time)) {
@@ -327,7 +329,7 @@ export default function Agendamento() {
         time: data.time,
         date: data.date instanceof Date ? data.date : Timestamp.fromDate(new Date(data.date)),
         createdAt: Timestamp.now(),
-        public: true, // 👈 novo
+        public: true, // 👈 garante agenda pública
       });
       setOpenNew(false);
       setNotice({
@@ -373,11 +375,11 @@ export default function Agendamento() {
       await updateDoc(ref, {
         title: data.title,
         client: data.client,
-        phone: data.phone, // para padronizar, poderia salvar onlyDigits(data.phone)
+        phone: data.phone,
         time: data.time,
         date: data.date instanceof Date ? data.date : Timestamp.fromDate(new Date(data.date)),
         updatedAt: Timestamp.now(),
-        public: true, // 👈 novo
+        public: true, // 👈 mantém público
       });
       setEditing(null);
       setNotice({
@@ -421,7 +423,7 @@ export default function Agendamento() {
     }
   }
 
-  // Aprovar / Recusar solicitações
+  // Aprovar / Recusar solicitações (appointment_requests)
   async function approveRequest(r: RequestDoc) {
     try {
       if (hasConflict(r.date, r.time)) {
@@ -434,14 +436,18 @@ export default function Agendamento() {
         return;
       }
       await addDoc(collection(db, "appointments"), {
-        title: r.service,
+        title: r.title,
         client: r.client,
         phone: r.phone,
         time: r.time,
         date: Timestamp.fromDate(r.date),
         createdAt: Timestamp.now(),
+        public: true, // 👈 aparece no calendário público
       });
-      await deleteDoc(doc(db, "requests", r.id));
+
+      // Remover da fila (ou marcar approved, se preferir manter histórico)
+      await deleteDoc(doc(db, "appointment_requests", r.id));
+
       setNotice({
         open: true,
         variant: "success",
@@ -461,19 +467,22 @@ export default function Agendamento() {
 
   async function rejectRequest(r: RequestDoc) {
     try {
-      await deleteDoc(doc(db, "requests", r.id));
+      await updateDoc(doc(db, "appointment_requests", r.id), {
+        status: "rejected",
+        updatedAt: Timestamp.now(),
+      });
       setNotice({
         open: true,
         variant: "success",
-        title: "Solicitação removida",
-        message: "A solicitação foi excluída.",
+        title: "Solicitação atualizada",
+        message: "Status alterado para recusada.",
       });
     } catch (e: any) {
       console.error(e);
       setNotice({
         open: true,
         variant: "error",
-        title: "Falha ao remover",
+        title: "Falha ao atualizar",
         message: e?.message || "Tente novamente.",
       });
     }
@@ -512,8 +521,7 @@ export default function Agendamento() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pt-[100px] pb-8">
-
-      {/* Header + CTA Novo agendamento */}
+      {/* Header + CTA Novo agendamento (manual pelo admin) */}
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-800">Painel de Agendamentos</h1>
@@ -552,40 +560,36 @@ export default function Agendamento() {
                 <p className="text-xs text-slate-500">Aprovar ou recusar pedidos dos clientes</p>
               </div>
               <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-100 px-2 text-xs font-semibold text-slate-600">
-                {requests.length}
+                {pendingRequests.length}
               </span>
             </div>
 
-            {requests.length === 0 ? (
+            {pendingRequests.length === 0 ? (
               <div className="m-4 rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
                 Nenhuma solicitação por enquanto.
               </div>
             ) : (
               <ul className="divide-y divide-slate-200">
-                {requests.map((r) => (
+                {pendingRequests.map((r) => (
                   <li key={r.id} className="px-4 py-3 hover:bg-slate-50 transition-colors">
                     <div className="flex items-start justify-between gap-3">
-                      {/* blocão com 4 linhas: Nome, Telefone, Serviço, Horário */}
+                      {/* Nome, Telefone, Serviço, Horário */}
                       <div className="min-w-0">
-                        {/* Nome */}
                         <p className="text-sm font-semibold text-slate-900 truncate">
                           {r.client}
                         </p>
-                        {/* Telefone */}
                         <p className="mt-0.5 text-xs text-slate-600 truncate">
                           {formatPhoneBR(r.phone)}
                         </p>
-                        {/* Serviço */}
                         <p className="mt-0.5 text-xs text-slate-600 truncate">
-                          {r.service}
+                          {r.title}
                         </p>
-                        {/* Horário (data + hora) */}
                         <p className="mt-0.5 text-xs text-slate-600">
                           {r.date.toLocaleDateString("pt-BR")} • {r.time}
                         </p>
                       </div>
 
-                      {/* CTAs – mantidos iguais */}
+                      {/* CTAs */}
                       <div className="shrink-0 flex items-center gap-1">
                         <button
                           onClick={() => approveRequest(r)}
@@ -631,7 +635,7 @@ export default function Agendamento() {
                   <li key={String(a.id)} className="px-4 py-3 hover:bg-slate-50 transition-colors">
                     <div className="flex gap-3">
                       <div className="min-w-0 flex-1">
-                        {/* Linha 1: horário + CTAs (inalterado) */}
+                        {/* Linha 1: horário + CTAs */}
                         <div className="flex items-center justify-between gap-2">
                           <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 tabular-nums">
                             {a.time}
@@ -662,7 +666,7 @@ export default function Agendamento() {
                           </div>
                         </div>
 
-                        {/* ↓ Novo bloco: Nome, Telefone, Serviço (nessa ordem) */}
+                        {/* Linha 2-4: Nome, Telefone, Serviço */}
                         <div className="mt-2 space-y-0.5">
                           <p className="text-sm font-semibold text-slate-900 truncate">
                             {a.client}
@@ -684,7 +688,7 @@ export default function Agendamento() {
         </aside>
       </div>
 
-      {/* Modal: novo agendamento */}
+      {/* Modal: novo agendamento (admin cria direto em appointments) */}
       {openNew && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpenNew(false)} />

@@ -1,70 +1,93 @@
 // src/pages/client/ClienteServicos.tsx
 import React from "react";
 import type { Service } from "../../types/service";
-import { listenServices } from "../../repositories/serviceRepo"; // <-- usa o repositório
-
-function formatBRL(n: number) {
-    try {
-        return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
-    } catch {
-        return `R$ ${n.toFixed(2)}`;
-    }
-}
+import { getAllServicesOnce } from "../../repositories/serviceRepo";
+import { useBookingModal } from "../../components/booking/BookingModalProvider"; // ⬅️
 
 export default function ClienteServicos() {
     const [items, setItems] = React.useState<Service[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
+    const booking = useBookingModal(); // ⬅️
 
     React.useEffect(() => {
-        const unsub = listenServices(
-            (rows) => {
+        (async () => {
+            try {
+                const rows = await getAllServicesOnce();
                 setItems(rows);
-                setLoading(false);
-            },
-            (e) => {
+            } catch (e) {
                 console.error(e);
-                setError("Falha ao carregar serviços.");
+                setError("Não foi possível carregar os serviços.");
+            } finally {
                 setLoading(false);
             }
-        );
-        return () => unsub(); // cleanup do snapshot
+        })();
     }, []);
 
     return (
-        <section className="max-w-6xl mx-auto p-4">
-            <h1 className="text-xl font-semibold text-slate-900">Serviços</h1>
-            <p className="text-slate-600 mb-4">Escolha um serviço para ver valores e duração.</p>
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
+            <div className="flex items-center justify-between">
+                <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Serviços</h1>
+
+                {/* CTA global que abre o modal sem serviço pré-selecionado */}
+                <button
+                    onClick={() => booking.open({})}
+                    className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+                >
+                    Agendar agora
+                </button>
+            </div>
 
             {loading ? (
-                <div className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
-                    Carregando…
-                </div>
+                <p className="mt-6 text-sm text-slate-500">Carregando…</p>
             ) : error ? (
-                <div className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-rose-600 shadow-sm">
-                    {error}
-                </div>
+                <p className="mt-6 text-sm text-rose-600">{error}</p>
             ) : items.length === 0 ? (
-                <div className="rounded-3xl border-2 border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+                <div className="mt-6 rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
                     Nenhum serviço disponível no momento.
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {items.map((s) => (
-                        <article key={s.id} className="rounded-3xl border border-slate-200 bg-white p-4">
-                            <div className="flex items-start justify-between gap-3">
-                                <h3 className="text-base font-semibold text-slate-800">{s.name}</h3>
-                                {s.badge && (
-                                    <span className="px-2 py-0.5 rounded-full text-xs bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                        {s.badge}
-                                    </span>
+                        <article
+                            key={s.id}
+                            className="rounded-3xl border border-slate-200 bg-white hover:shadow-sm transition-shadow"
+                        >
+                            <div className="p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <h3 className="text-base font-semibold text-slate-800">{s.name}</h3>
+                                    {s.badge && (
+                                        <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                                            {s.badge}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {s.description && (
+                                    <p className="mt-1 text-sm text-slate-600 line-clamp-3">{s.description}</p>
                                 )}
+
+                                <div className="mt-4 flex items-end justify-between">
+                                    <div className="space-y-1">
+                                        {/* você removeu preço do lado admin; aqui pode omitir também */}
+                                        <div className="text-xs text-slate-500 tabular-nums">
+                                            ~ {s.durationMin ?? 0} min
+                                        </div>
+                                    </div>
+
+                                    {/* ⬇️ abre o modal já com este serviço pré-selecionado */}
+                                    <button
+                                        onClick={() => booking.open({ serviceId: s.id })}
+                                        className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                                    >
+                                        Agendar
+                                    </button>
+                                </div>
                             </div>
-                            <p className="mt-1 text-sm text-slate-600">{s.description}</p>
                         </article>
                     ))}
                 </div>
             )}
-        </section>
+        </div>
     );
 }

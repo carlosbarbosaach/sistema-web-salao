@@ -1,4 +1,3 @@
-// src/pages/cliente/ClienteCalendario.tsx
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import Calendar from "../../components/calendar/Calendar";
@@ -6,21 +5,12 @@ import PublicBusyList from "../../components/appointments/PublicBusyList";
 import type { Appointment } from "../../types/appointment";
 import { db } from "../../lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import { useBookingModal } from "../../components/booking/BookingModalProvider";
+import { useBookingModal } from "../../components/booking/BookingModalProvider"; // <- AQUI
 
-function parseDate(v: any): Date {
-  if (!v) return new Date(NaN);
-  if (typeof v?.toDate === "function") return v.toDate(); // Firestore Timestamp
-  if (typeof v === "string") return new Date(v);
-  return new Date(v);
-}
-
-function fromLocalDateParam(v: string) {
-  const [y, m, d] = v.split("-").map(Number);
-  return new Date(y, (m || 1) - 1, d || 1);
-}
+// ...helpers (parseDate, fromLocalDateParam, startOfDay)
 
 export default function ClienteCalendario() {
+  const { open } = useBookingModal(); // <- AQUI
   const [search] = useSearchParams();
   const preSel = search.get("date");
   const initial = preSel ? fromLocalDateParam(preSel) : new Date();
@@ -28,8 +18,6 @@ export default function ClienteCalendario() {
   const [selected, setSelected] = React.useState<Date | null>(initial);
   const [items, setItems] = React.useState<Appointment[]>([]);
   const [loading, setLoading] = React.useState(true);
-
-  const { open } = useBookingModal();
 
   React.useEffect(() => {
     const unsub = onSnapshot(collection(db, "appointments"), (snap) => {
@@ -49,10 +37,7 @@ export default function ClienteCalendario() {
   }, []);
 
   const filtered = React.useMemo(
-    () =>
-      selected
-        ? items.filter((a) => a.date.toDateString() === selected.toDateString())
-        : [],
+    () => (selected ? items.filter((a) => a.date.toDateString() === selected.toDateString()) : []),
     [items, selected]
   );
 
@@ -60,6 +45,8 @@ export default function ClienteCalendario() {
     <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Calendário</h1>
+
+        {/* CTA: agora usa o provider */}
         <button
           onClick={() => open({ date: selected ?? new Date() })}
           className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
@@ -70,7 +57,11 @@ export default function ClienteCalendario() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2">
-          <Calendar selected={selected ?? new Date()} onSelect={setSelected} appointments={items} />
+          <Calendar
+            selected={selected ?? new Date()}
+            onSelect={setSelected}
+            appointments={items}
+          />
         </section>
 
         <section className="lg:col-span-1">
