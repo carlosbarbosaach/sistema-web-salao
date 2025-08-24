@@ -31,7 +31,7 @@ export default function ServiceCard({ service, onEdit, onDelete }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => onEdit(service.id)}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+              className="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-300"
               title="Editar"
               aria-label={`Editar ${service.name}`}
             >
@@ -39,7 +39,7 @@ export default function ServiceCard({ service, onEdit, onDelete }: Props) {
             </button>
             <button
               onClick={() => onDelete(service.id)}
-              className="inline-flex items-center gap-1 rounded-lg border border-rose-300 px-3 py-1.5 text-sm text-rose-700 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-200 cursor-pointer"
+              className="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-rose-300 px-3 py-1.5 text-sm text-rose-700 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-200"
               title="Excluir"
               aria-label={`Excluir ${service.name}`}
             >

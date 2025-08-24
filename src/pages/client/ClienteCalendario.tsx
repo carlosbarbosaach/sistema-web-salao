@@ -49,7 +49,7 @@ export default function ClienteCalendario() {
         {/* CTA: agora usa o provider */}
         <button
           onClick={() => open({ date: selected ?? new Date() })}
-          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+          className="cursor-pointer inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
         >
           Solicitar agendamento
         </button>

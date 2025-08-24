@@ -155,13 +155,13 @@ export default function ServiceForm({ initial, onSubmit, onCancel }: Props) {
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                    className="cursor-pointer inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    className="inline-flex items-center rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-900"
+                    className="cursor-pointer inline-flex items-center rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-900"
                 >
                     Salvar
                 </button>

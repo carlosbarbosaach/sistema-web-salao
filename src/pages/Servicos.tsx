@@ -94,7 +94,7 @@ export default function Servicos({ title = "Serviços" }: { title?: string }) {
         </div>
         <button
           onClick={handleNew}
-          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="cursor-pointer inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
         >
           Novo serviço
         </button>
@@ -148,13 +148,13 @@ export default function Servicos({ title = "Serviços" }: { title?: string }) {
                   <div className="mt-4 flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleEdit(s)}
-                      className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                      className="cursor-pointer inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => setConfirmDel({ id: s.id, name: s.name })}
-                      className="inline-flex items-center rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
+                      className="cursor-pointer inline-flex items-center rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
                     >
                       Excluir
                     </button>
@@ -186,7 +186,7 @@ export default function Servicos({ title = "Serviços" }: { title?: string }) {
                   setOpenForm(false);
                   setEditing(null);
                 }}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
+                className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
                 aria-label="Fechar"
               >
                 ✕

@@ -44,7 +44,7 @@ export default function PublicHeader({ brand = "Priscila Alisamentos" }: { brand
 
           {/* menu mobile + trigger */}
           <button
-            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 hover:bg-slate-100"
+            className="cursor-pointer md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 hover:bg-slate-100"
             aria-label="Abrir menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}

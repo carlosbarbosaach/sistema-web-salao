@@ -22,7 +22,7 @@ export default function ServiceToolbar({
             <div className="flex gap-2">
                 <button
                     onClick={onCreate}
-                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+                    className="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                 >
                     <PlusIcon /> Novo serviço
                 </button>

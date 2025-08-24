@@ -51,7 +51,7 @@ function Header({ brand = "Priscila Alisamentos" }: { brand?: string }) {
             {/* CTA Sair (desktop) */}
             <button
               onClick={() => setConfirmOut(true)}
-              className="hidden md:inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              className="cursor-pointer hidden md:inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"
               title="Sair"
             >
               Sair
@@ -59,7 +59,7 @@ function Header({ brand = "Priscila Alisamentos" }: { brand?: string }) {
 
             {/* Menu mobile */}
             <button
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              className="cursor-pointer md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"
               aria-label="Abrir menu"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}

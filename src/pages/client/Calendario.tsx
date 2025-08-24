@@ -4,7 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import Calendar from "../../components/calendar/Calendar";
 import PublicBusyList from "../../components/appointments/PublicBusyList";
 import type { Appointment } from "../../types/appointment";
-import AppointmentForm from "../../components/appointments/AppointmentForm"; // <— ajuste o caminho se diferente
+import AppointmentForm from "../../components/appointments/AppointmentForm";
+import SimpleToast from "../../components/common/SimpleToast"; // ⬅️ TOAST
 
 import { db } from "../../lib/firebase";
 import { collection, onSnapshot, addDoc, getDocs, Timestamp } from "firebase/firestore";
@@ -35,6 +36,9 @@ export default function ClienteCalendario() {
   // modal state + dados para o form
   const [openNew, setOpenNew] = React.useState(false);
   const [services, setServices] = React.useState<any[]>([]);
+
+  // ✅ toast state
+  const [toastOpen, setToastOpen] = React.useState(false);
 
   // snapshot em tempo real (appointments)
   React.useEffect(() => {
@@ -73,7 +77,7 @@ export default function ClienteCalendario() {
     );
   }, [items, selected]);
 
-  // submit do modal (agora cria SOLICITAÇÃO)
+  // submit do modal (AGORA cria SOLICITAÇÃO + toast)
   async function handleCreate(data: {
     title: string;
     client: string;
@@ -82,15 +86,19 @@ export default function ClienteCalendario() {
     date: Date;
   }) {
     await addDoc(collection(db, "appointment_requests"), {
-      title: data.title,          // nome do serviço (texto)
+      title: data.title,                                    // nome do serviço
       client: data.client,
       phone: data.phone,
-      time: data.time,            // "HH:MM"
-      date: Timestamp.fromDate(startOfDay(data.date)), // rules exigem timestamp
+      time: data.time,                                      // "HH:MM"
+      date: Timestamp.fromDate(startOfDay(data.date)),      // rules exigem timestamp
       status: "pending",
-      createdAt: Timestamp.now(), // ok pelas rules
+      createdAt: Timestamp.now(),
     });
+
+    // fecha modal e mostra toast por 10s
     setOpenNew(false);
+    setToastOpen(true);
+    console.log("[ClienteCalendario] Solicitação enviada; admin confirmará via WhatsApp.");
   }
 
   const filtered = React.useMemo(
@@ -109,7 +117,7 @@ export default function ClienteCalendario() {
         {/* CTA: abre o modal */}
         <button
           onClick={() => setOpenNew(true)}
-          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+          className="cursor-pointer inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
         >
           Solicitar agendamento
         </button>
@@ -138,16 +146,16 @@ export default function ClienteCalendario() {
         </section>
       </div>
 
-      {/* Modal: novo agendamento */}
+      {/* Modal: nova solicitação de agendamento */}
       {openNew && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpenNew(false)} />
           <div className="relative z-[101] w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-lg">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 rounded-t-3xl">
-              <h3 className="text-base font-semibold text-slate-800">Novo agendamento</h3>
+              <h3 className="text-base font-semibold text-slate-800">Solicitar agendamento</h3>
               <button
                 onClick={() => setOpenNew(false)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
+                className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
                 aria-label="Fechar"
               >
                 ✕
@@ -164,7 +172,7 @@ export default function ClienteCalendario() {
                   date: selected ?? new Date(),
                 }}
                 defaultDate={selected ?? new Date()}
-                busyTimes={takenForSelected}
+                busyTimes={[...takenForSelected]}   // ⬅️ garante array
                 onCancel={() => setOpenNew(false)}
                 onSubmit={handleCreate}
               />
@@ -172,6 +180,14 @@ export default function ClienteCalendario() {
           </div>
         </div>
       )}
+
+      {/* TOAST */}
+      <SimpleToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message="Sua solicitação foi enviada! O administrador irá confirmar ou recusar via WhatsApp."
+        durationMs={10000}
+      />
     </div>
   );
 }

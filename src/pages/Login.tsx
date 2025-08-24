@@ -197,7 +197,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+              className="cursor-pointer w-full inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
             >
               Entrar
             </button>

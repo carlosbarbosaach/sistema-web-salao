@@ -531,7 +531,7 @@ export default function Agendamento() {
         </div>
         <button
           onClick={() => setOpenNew(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          className="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-300"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" />
@@ -593,13 +593,13 @@ export default function Agendamento() {
                       <div className="shrink-0 flex items-center gap-1">
                         <button
                           onClick={() => approveRequest(r)}
-                          className="inline-flex items-center rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+                          className="cursor-pointer inline-flex items-center rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
                         >
                           Aprovar
                         </button>
                         <button
                           onClick={() => rejectRequest(r)}
-                          className="inline-flex items-center rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
+                          className="cursor-pointer inline-flex items-center rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
                         >
                           Recusar
                         </button>
@@ -644,24 +644,24 @@ export default function Agendamento() {
                           <div className="shrink-0 flex items-center gap-1">
                             <button
                               onClick={() => openWhatsApp(a)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
+                              className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
                               title="WhatsApp"
                             >
                               <IconWhatsApp /> WhatsApp
                             </button>
                             <button
                               onClick={() => setEditing(a)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
+                              className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
                               title="Editar"
                             >
-                              <IconEdit /> Editar
+                              <IconEdit />
                             </button>
                             <button
                               onClick={() => setConfirmDel(a)}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
+                              className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
                               title="Excluir"
                             >
-                              <IconTrash /> Excluir
+                              <IconTrash />
                             </button>
                           </div>
                         </div>

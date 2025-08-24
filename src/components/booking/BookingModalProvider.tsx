@@ -1,3 +1,4 @@
+// src/components/booking/BookingModalProvider.tsx
 import React from "react";
 import BookingModal from "./BookingModal";
 import SimpleToast from "../common/SimpleToast";
@@ -34,7 +35,12 @@ export function BookingModalProvider({ children }: { children: React.ReactNode }
         onClose={close}
         date={date}
         presetServiceId={presetServiceId}
-        onSuccess={() => setToastOpen(true)} // <- dispara toast
+        onSuccess={() => {
+          setOpen(false);      // fecha modal
+          setToastOpen(true);  // abre toast
+          // opcional: console para depuração
+          console.log("[Booking] Solicitação enviada — aguardando confirmação no WhatsApp.");
+        }}
       />
 
       <SimpleToast

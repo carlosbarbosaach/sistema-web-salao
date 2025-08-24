@@ -2,13 +2,11 @@
 import React from "react";
 import type { Service } from "../../types/service";
 import { getAllServicesOnce } from "../../repositories/serviceRepo";
-import { useBookingModal } from "../../components/booking/BookingModalProvider"; // ⬅️
 
 export default function ClienteServicos() {
     const [items, setItems] = React.useState<Service[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
-    const booking = useBookingModal(); // ⬅️
 
     React.useEffect(() => {
         (async () => {
@@ -28,14 +26,6 @@ export default function ClienteServicos() {
         <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 pb-8">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl md:text-2xl font-semibold text-slate-800">Serviços</h1>
-
-                {/* CTA global que abre o modal sem serviço pré-selecionado */}
-                <button
-                    onClick={() => booking.open({})}
-                    className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
-                >
-                    Agendar agora
-                </button>
             </div>
 
             {loading ? (
@@ -74,14 +64,6 @@ export default function ClienteServicos() {
                                             ~ {s.durationMin ?? 0} min
                                         </div>
                                     </div>
-
-                                    {/* ⬇️ abre o modal já com este serviço pré-selecionado */}
-                                    <button
-                                        onClick={() => booking.open({ serviceId: s.id })}
-                                        className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
-                                    >
-                                        Agendar
-                                    </button>
                                 </div>
                             </div>
                         </article>
